@@ -1,0 +1,1 @@
+- [feedback_design.md](feedback_design.md) — Approved card layout: nick+rank left, MMR top-right, stats 2x2, badges above chart

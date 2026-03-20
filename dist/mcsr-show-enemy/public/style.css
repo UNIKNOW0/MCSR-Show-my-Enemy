@@ -1,0 +1,236 @@
+@property --shimmer-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --card-font: 'Inter', system-ui, sans-serif;
+  --anim-duration: 500ms;
+  --font-size-nick: 24px;
+  --font-size-mmr: 28px;
+  --font-size-stats: 24px;
+}
+
+body {
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--card-font), system-ui, sans-serif;
+}
+
+#overlay-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+}
+
+/* === Card wrapper with shimmer border === */
+.card-wrapper {
+  position: relative;
+  padding: 3px;
+  border-radius: 16px;
+}
+
+.card-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 18px;
+  background: conic-gradient(
+    from var(--shimmer-angle),
+    transparent 0%,
+    var(--rank-color) 8%,
+    var(--rank-glow) 16%,
+    var(--rank-color) 24%,
+    transparent 36%,
+    transparent 50%,
+    var(--rank-color) 58%,
+    var(--rank-glow) 66%,
+    var(--rank-color) 74%,
+    transparent 86%
+  );
+  animation: shimmerRotate 3s linear infinite;
+  z-index: -1;
+}
+
+.card-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 22px;
+  box-shadow: 0 0 20px 4px var(--rank-color-alpha);
+  animation: breatheGlow 2.5s ease-in-out infinite;
+  z-index: -2;
+}
+
+@keyframes shimmerRotate {
+  to { --shimmer-angle: 360deg; }
+}
+
+@keyframes breatheGlow {
+  0%, 100% { opacity: 0.4; box-shadow: 0 0 15px 3px var(--rank-color-alpha); }
+  50%      { opacity: 1;   box-shadow: 0 0 35px 10px var(--rank-color-alpha); }
+}
+
+/* Direction: top */
+@keyframes slideIn-top {
+  from { transform: translateY(-130%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes slideOut-top {
+  from { transform: translateY(0);     opacity: 1; }
+  to   { transform: translateY(-130%); opacity: 0; }
+}
+/* Direction: bottom */
+@keyframes slideIn-bottom {
+  from { transform: translateY(130%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes slideOut-bottom {
+  from { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(130%); opacity: 0; }
+}
+/* Direction: left */
+@keyframes slideIn-left {
+  from { transform: translateX(-130%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes slideOut-left {
+  from { transform: translateX(0);     opacity: 1; }
+  to   { transform: translateX(-130%); opacity: 0; }
+}
+/* Direction: right */
+@keyframes slideIn-right {
+  from { transform: translateX(130%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes slideOut-right {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(130%); opacity: 0; }
+}
+
+/* === Card inner === */
+.card-inner {
+  background: #2a2a2a;
+  border-radius: 14px;
+  padding: 16px 20px;
+  width: 480px;
+  color: #fff;
+}
+
+/* === Header row: nickname left, MMR right === */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.card-nickname {
+  font-size: var(--font-size-nick);
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-mmr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-mmr);
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+.card-mmr .rank-icon {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+}
+
+.card-mmr .mmr-label {
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  margin-left: 2px;
+}
+
+/* === Middle section: head + stats === */
+.card-middle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.card-head-container {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.card-badges {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.card-badge {
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+
+.card-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.card-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.card-stat .stat-value {
+  color: var(--rank-color);
+  font-weight: 700;
+  font-size: var(--font-size-stats);
+  width: 80px;
+  text-align: right;
+}
+
+.card-stat .stat-label {
+  color: rgba(255,255,255,0.5);
+  font-weight: 500;
+  font-size: var(--font-size-stats);
+  width: 100px;
+}
+
+/* === Chart section === */
+.card-chart {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 10px 12px 6px 8px;
+}

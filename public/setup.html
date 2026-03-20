@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCSR Show my Enemy</title>
+  <link rel="icon" type="image/webp" href="/icon.webp">
+  <style>
+    @font-face { font-family: '8bit Wonder'; src: url('/fonts/8bitwonderrusbylyajka_nominal.otf'); }
+    @font-face { font-family: 'Pixel Dingbats'; src: url('/fonts/pixel_dingbats-7.ttf'); }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: '8bit Wonder', monospace;
+      background: #111;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      image-rendering: pixelated;
+    }
+
+    /* === Language Switcher === */
+    .lang-switch {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      display: flex;
+      gap: 4px;
+      z-index: 100;
+    }
+
+    .lang-btn {
+      background: #222;
+      border: 3px solid #444;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: '8bit Wonder', monospace;
+      font-size: 16px;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s;
+    }
+
+    .lang-btn:hover { border-color: #888; color: #fff; }
+    .lang-btn.active { border-color: #FFAA00; color: #FFAA00; background: #1a1400; }
+
+    .flag { width: 20px; height: 14px; object-fit: cover; }
+
+    .donate-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      background: #222;
+      border: 3px solid #ff6b6b;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: '8bit Wonder', monospace;
+      font-size: 16px;
+      color: #ff6b6b;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s;
+    }
+    .donate-btn:hover {
+      border-color: #ff4444;
+      color: #fff;
+      background: #ff4444;
+    }
+
+    /* === Main Card === */
+    .setup-card {
+      background: #1a1a1a;
+      border: 4px solid #FFAA00;
+      padding: 32px;
+      width: 600px;
+      box-shadow: 8px 8px 0px #000, 12px 12px 0px #FFAA00;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .logo-row img {
+      width: 48px;
+      height: 48px;
+      image-rendering: pixelated;
+    }
+
+    h1 {
+      font-size: 22px;
+      color: #FFAA00;
+      text-shadow: 2px 2px 0px #000;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 28px;
+      margin-top: 4px;
+    }
+
+    /* === Input === */
+    label {
+      display: block;
+      font-size: 16px;
+      color: #888;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 3px solid #444;
+      background: #111;
+      color: #fff;
+      font-family: '8bit Wonder', monospace;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.1s;
+    }
+
+    input[type="text"]:focus { border-color: #FFAA00; }
+    input[type="text"]::placeholder { color: #333; font-size: 16px; }
+
+    /* === Buttons === */
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px 16px;
+      border: 3px solid;
+      font-family: '8bit Wonder', monospace;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.1s;
+      text-transform: uppercase;
+    }
+
+    .btn-primary {
+      background: #FFAA00;
+      border-color: #CC8800;
+      color: #000;
+      box-shadow: 4px 4px 0px #000;
+    }
+
+    .btn-primary:hover {
+      background: #FFCC44;
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px #000;
+    }
+
+    .btn-primary:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #000;
+    }
+
+    .btn-secondary {
+      background: #222;
+      border-color: #555;
+      color: #aaa;
+      box-shadow: 4px 4px 0px #000;
+    }
+
+    .btn-secondary:hover {
+      border-color: #888;
+      color: #fff;
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px #000;
+    }
+
+    .btn-secondary:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #000;
+    }
+
+    /* === Status === */
+    .status {
+      margin-top: 16px;
+      padding: 10px 12px;
+      border: 3px solid;
+      font-size: 16px;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .status.success {
+      display: block;
+      border-color: #4ade80;
+      color: #4ade80;
+      background: #0a1a0a;
+    }
+
+    .status.error {
+      display: block;
+      border-color: #f87171;
+      color: #f87171;
+      background: #1a0a0a;
+    }
+
+    /* === OBS Link Section === */
+    .obs-section {
+      margin-top: 24px;
+      border: 3px solid #333;
+      background: #111;
+      padding: 16px;
+    }
+
+    .obs-section h2 {
+      font-size: 16px;
+      color: #FFAA00;
+      margin-bottom: 12px;
+    }
+
+    .obs-link-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .obs-url {
+      flex: 1;
+      background: #0a0a0a;
+      border: 2px solid #333;
+      padding: 10px 12px;
+      color: #FFAA00;
+      font-family: '8bit Wonder', monospace;
+      font-size: 16px;
+      user-select: all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .btn-copy {
+      background: #222;
+      border: 3px solid #555;
+      color: #aaa;
+      padding: 10px 24px;
+      font-family: '8bit Wonder', monospace;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0px #000;
+      transition: all 0.1s;
+      white-space: nowrap;
+    }
+
+    .btn-copy:hover {
+      border-color: #888;
+      color: #fff;
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px #000;
+    }
+
+    .btn-copy:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #000;
+    }
+
+    /* === Copy Toast === */
+    .copy-toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: #FFAA00;
+      color: #000;
+      padding: 16px 28px;
+      font-family: '8bit Wonder', monospace;
+      font-size: 16px;
+      border: 4px solid #000;
+      box-shadow: 6px 6px 0px #000;
+      z-index: 999;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .copy-toast.show {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    /* === Customization Button === */
+    .btn-custom {
+      width: 100%;
+      margin-top: 16px;
+      background: #1a0a2a;
+      border-color: #9944ff;
+      color: #bb77ff;
+      box-shadow: 4px 4px 0px #000;
+      font-size: 16px;
+    }
+    .btn-custom:hover {
+      background: #2a1040;
+      color: #dd99ff;
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px #000;
+    }
+    .btn-custom:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #000;
+    }
+
+    /* === Page load — Pokemon depixelate via JS === */
+    body.loading { filter: url(#pixelate); }
+
+    #load-cover {
+      position: fixed;
+      inset: 0;
+      background: #111;
+      z-index: 99999;
+      transition: opacity 0.1s ease;
+    }
+    #load-cover.fade { opacity: 0; pointer-events: none; }
+
+    /* === Customization Panel === */
+    .custom-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0);
+      z-index: 200;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px 15vw;
+      visibility: hidden;
+      pointer-events: none;
+      transition: background 0.5s ease, visibility 0s 0.8s;
+    }
+    .custom-overlay.open {
+      visibility: visible;
+      pointer-events: auto;
+      background: rgba(0,0,0,0.85);
+      transition: background 0.5s ease, visibility 0s 0s;
+    }
+
+    .custom-panel {
+      background: #1a1a1a;
+      border: 4px solid #9944ff;
+      padding: 28px;
+      width: 100%;
+      max-height: 100%;
+      overflow-y: hidden;
+      box-shadow: 8px 8px 0px #000, 12px 12px 0px #9944ff;
+      transform: translateY(100vh);
+      opacity: 0;
+    }
+    .custom-overlay.open .custom-panel {
+      animation: lagSlideIn 0.6s steps(8) forwards;
+    }
+    .custom-overlay:not(.open) .custom-panel {
+      animation: lagSlideOut 0.6s steps(8) forwards;
+    }
+
+    @keyframes lagSlideIn {
+      0%   { transform: translateY(100vh); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes lagSlideOut {
+      0%   { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+
+    .custom-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .custom-header h2 {
+      font-size: 18px;
+      color: #9944ff;
+      text-shadow: 2px 2px 0px #000;
+    }
+
+    .btn-close-custom {
+      background: #333;
+      border: 3px solid #666;
+      color: #fff;
+      padding: 8px 14px;
+      font-family: 'Pixel Dingbats', monospace;
+      font-size: 24px;
+      cursor: pointer;
+      flex: none;
+    }
+    .btn-close-custom:hover { border-color: #f44; color: #f44; }
+
+    /* === 3-column layout: left | center preview | right === */
+    .custom-body {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      gap: 16px;
+    }
+    .custom-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    /* Preview — center column */
+    .custom-preview {
+      background: #000;
+      border: 3px solid #333;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 400px;
+      overflow: hidden;
+    }
+
+    .custom-preview iframe {
+      width: 520px;
+      height: 500px;
+      border: none;
+      pointer-events: none;
+      transform: scale(var(--preview-scale, 0.5));
+      transform-origin: center center;
+      flex-shrink: 0;
+    }
+
+    .custom-section {
+      background: #111;
+      border: 3px solid #333;
+      padding: 14px;
+    }
+
+    .custom-section h3 {
+      font-size: 16px;
+      color: #9944ff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .custom-section.full-width {
+      grid-column: 1 / -1;
+    }
+
+    /* Controls */
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ctrl-row.has-slider {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px 0;
+    }
+    .ctrl-row.has-slider input[type="range"] {
+      grid-column: 1 / -1;
+    }
+
+    .ctrl-label {
+      font-size: 16px;
+      color: #888;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-reset-custom {
+      background: #333;
+      border: 3px solid #f44;
+      color: #f44;
+      padding: 8px 14px;
+      font-family: 'Pixel Dingbats', monospace;
+      font-size: 24px;
+      cursor: pointer;
+      flex: none;
+      transition: all 0.15s;
+    }
+    .btn-reset-custom:hover {
+      background: #f44;
+      color: #fff;
+    }
+
+    /* Confirm dialog */
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 300;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    .confirm-overlay.open {
+      display: flex;
+    }
+    .confirm-box {
+      background: #1a1a1a;
+      border: 4px solid #f44;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 8px 8px 0px #000;
+    }
+    .confirm-box p {
+      font-family: '8bit Wonder', monospace;
+      font-size: 16px;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .confirm-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .confirm-buttons button {
+      font-family: '8bit Wonder', monospace;
+      font-size: 16px;
+      padding: 8px 20px;
+      cursor: pointer;
+      border: 3px solid;
+    }
+    .btn-confirm-yes {
+      background: #f44;
+      border-color: #f44;
+      color: #fff;
+    }
+    .btn-confirm-yes:hover { background: #ff6666; }
+    .btn-confirm-no {
+      background: #333;
+      border-color: #666;
+      color: #fff;
+    }
+    .btn-confirm-no:hover { border-color: #888; color: #888; }
+
+    /* Toggle switch */
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 20px;
+      cursor: pointer;
+    }
+    .toggle input { display: none; }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: #333;
+      border: 2px solid #555;
+      transition: all 0.2s;
+    }
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 12px;
+      height: 12px;
+      background: #888;
+      border: 2px solid #666;
+      transition: all 0.2s;
+    }
+    .toggle input:checked ~ .toggle-track {
+      background: #1a0a2a;
+      border-color: #9944ff;
+    }
+    .toggle input:checked ~ .toggle-thumb {
+      left: 22px;
+      background: #9944ff;
+      border-color: #bb77ff;
+    }
+
+    /* Select (native — for non-font selects) */
+    .custom-select {
+      background: #1a1a1a;
+      border: 2px solid #444;
+      color: #fff;
+      font-family: '8bit Wonder', monospace;
+      font-size: 16px;
+      padding: 8px 10px;
+      cursor: pointer;
+      max-width: 200px;
+    }
+    .custom-select:focus { border-color: #9944ff; outline: none; }
+
+    /* Font picker dropdown */
+    .font-picker {
+      position: relative;
+      width: 100%;
+    }
+    .font-picker-selected {
+      background: #1a1a1a;
+      border: 2px solid #444;
+      color: #fff;
+      padding: 8px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color 0.1s;
+    }
+    .font-picker-selected:hover { border-color: #888; }
+    .font-picker.open .font-picker-selected { border-color: #9944ff; }
+    .font-picker-arrow {
+      font-size: 16px;
+      color: #888;
+      margin-left: 8px;
+      transition: transform 0.2s;
+    }
+    .font-picker.open .font-picker-arrow { transform: rotate(180deg); }
+    .font-picker-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #111;
+      border: 2px solid #9944ff;
+      border-top: none;
+      max-height: 0;
+      overflow: hidden;
+      z-index: 50;
+      opacity: 0;
+      transition: max-height 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
+    }
+    .font-picker.open .font-picker-list {
+      max-height: 280px;
+      overflow-y: auto;
+      opacity: 1;
+    }
+    .font-picker-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      color: #ccc;
+      font-size: 16px;
+      transition: background 0.1s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .font-picker-item:hover { background: #2a1040; color: #fff; }
+    .font-picker-item.active { background: #1a0a2a; color: #9944ff; }
+    .font-picker-list::-webkit-scrollbar { width: 6px; }
+    .font-picker-list::-webkit-scrollbar-track { background: #111; }
+    .font-picker-list::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+    .font-picker-list::-webkit-scrollbar-thumb:hover { background: #9944ff; }
+
+    /* Color input */
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      padding: 6px 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+      position: relative;
+    }
+    .color-row:hover {
+      background: rgba(255,255,255,0.03);
+    }
+    .color-row.active {
+      border-color: var(--row-color, #888);
+      background: rgba(255,255,255,0.05);
+    }
+    .color-row .rank-arrow {
+      font-family: 'Pixel Dingbats', monospace;
+      font-size: 16px;
+      color: var(--row-color, #888);
+      width: 16px;
+      opacity: 0;
+      animation: none;
+    }
+    .color-row.active .rank-arrow {
+      opacity: 1;
+      animation: arrowBounce 0.6s steps(4) infinite;
+    }
+    @keyframes arrowBounce {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(4px); }
+    }
+    .color-row .rank-name {
+      font-size: 16px;
+      color: #888;
+      flex: 1;
+      transition: color 0.15s;
+    }
+    .color-row.active .rank-name {
+      color: var(--row-color, #fff);
+    }
+    .color-row .color-inputs {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    /* Custom color swatch (replaces native input) */
+    .color-swatch {
+      width: 28px;
+      height: 28px;
+      border: 2px solid #555;
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.15s;
+    }
+    .color-swatch:hover {
+      border-color: #aaa;
+    }
+    /* Hidden native input */
+    .color-row input[type="color"] {
+      position: absolute;
+      width: 0;
+      height: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Range slider — Minecraft enchant style */
+    @keyframes enchantShimmer {
+      0%   { box-shadow: 0 0 6px #9944ff, 0 0 12px #7733cc, inset 0 0 4px #7733cc; }
+      33%  { box-shadow: 0 0 10px #bb77ff, 0 0 20px #9944ff, inset 0 0 6px #9944ff; }
+      66%  { box-shadow: 0 0 8px #5522aa, 0 0 16px #7733cc, inset 0 0 4px #5522aa; }
+      100% { box-shadow: 0 0 6px #9944ff, 0 0 12px #7733cc, inset 0 0 4px #7733cc; }
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 120px;
+      height: 10px;
+      background: transparent;
+      outline: none;
+      cursor: pointer;
+      border: none;
+    }
+    /* — Chrome/Edge track — */
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 10px;
+      background: #333;
+      border: 2px solid #555;
+    }
+    /* — Chrome/Edge thumb — */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      margin-top: -5px;
+      background: #777;
+      border: 2px solid #999;
+      cursor: pointer;
+    }
+    input[type="range"]:hover::-webkit-slider-thumb {
+      background: #999;
+      border-color: #bbb;
+    }
+    input[type="range"].dragging::-webkit-slider-thumb {
+      background: #9944ff;
+      border-color: #bb77ff;
+      animation: enchantShimmer 1s ease-in-out infinite;
+    }
+    /* — Firefox track — */
+    input[type="range"]::-moz-range-track {
+      height: 10px;
+      background: #333;
+      border: 2px solid #555;
+    }
+    input[type="range"]::-moz-range-progress {
+      height: 10px;
+      background: #9944ff;
+      border: 2px solid #555;
+    }
+    /* — Firefox thumb — */
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #777;
+      border: 2px solid #999;
+      border-radius: 0;
+      cursor: pointer;
+    }
+    input[type="range"]:hover::-moz-range-thumb {
+      background: #999;
+      border-color: #bbb;
+    }
+    input[type="range"].dragging::-moz-range-thumb {
+      background: #9944ff;
+      border-color: #bb77ff;
+      animation: enchantShimmer 1s ease-in-out infinite;
+    }
+    .range-val {
+      font-size: 16px;
+      color: #9944ff;
+      min-width: 44px;
+      text-align: right;
+    }
+
+
+    /* === Guide === */
+    .guide {
+      margin-top: 20px;
+      border: 3px solid #222;
+      padding: 14px;
+      background: #0d0d0d;
+    }
+
+    .guide h3 {
+      font-size: 16px;
+      color: #888;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .guide-step {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 16px;
+      line-height: 1.8;
+      color: #666;
+    }
+
+    .guide-step .step-num {
+      color: #FFAA00;
+      flex-shrink: 0;
+    }
+
+    .guide-step .highlight {
+      color: #FFAA00;
+    }
+  </style>
+</head>
+<body class="loading">
+  <div id="load-cover"></div>
+  <svg width="0" height="0" style="position:absolute">
+    <filter id="pixelate">
+      <feFlood x="0" y="0" width="1" height="1"/>
+      <feComposite width="40" height="40"/>
+      <feTile result="tile"/>
+      <feComposite in="SourceGraphic" in2="tile" operator="in"/>
+      <feMorphology operator="dilate" radius="20"/>
+    </filter>
+  </svg>
+  <script>
+    (function() {
+      var filter = document.getElementById('pixelate');
+      var comp = filter.querySelectorAll('feComposite')[0];
+      var morph = filter.querySelector('feMorphology');
+      var steps = [
+        { size: 40, radius: 20 },
+        { size: 28, radius: 14 },
+        { size: 20, radius: 10 },
+        { size: 14, radius: 7 },
+        { size: 10, radius: 5 },
+        { size: 6, radius: 3 },
+        { size: 4, radius: 2 },
+        { size: 2, radius: 1 },
+      ];
+      var cover = document.getElementById('load-cover');
+      cover.classList.add('fade');
+      setTimeout(function() { cover.remove(); }, 150);
+      var i = 0;
+      var interval = setInterval(function() {
+        if (i >= steps.length) {
+          clearInterval(interval);
+          document.body.classList.remove('loading');
+          return;
+        }
+        comp.setAttribute('width', steps[i].size);
+        comp.setAttribute('height', steps[i].size);
+        morph.setAttribute('radius', steps[i].radius);
+        i++;
+      }, 80);
+    })();
+  </script>
+  <!-- Language Switcher -->
+  <div class="lang-switch">
+    <button class="lang-btn active" data-lang="en"><img class="flag" src="https://flagcdn.com/w40/us.png" alt="EN"> EN</button>
+    <button class="lang-btn" data-lang="ru"><img class="flag" src="https://flagcdn.com/w40/ru.png" alt="RU"> RU</button>
+  </div>
+
+  <a class="donate-btn" href="https://www.donationalerts.com/r/unikn0w" target="_blank">DONATE</a>
+
+  <!-- Copy Toast -->
+  <div class="copy-toast" id="copyToast"></div>
+
+  <div class="setup-card">
+    <div class="logo-row">
+      <img src="/icon.webp" alt="logo">
+      <h1>MCSR Show my Enemy</h1>
+    </div>
+    <p class="subtitle" data-i18n="subtitle">Stream overlay for MCSR Ranked</p>
+
+    <label data-i18n="label_nick">MINECRAFT NICKNAME</label>
+    <input type="text" id="username" placeholder="Enter your nick..." data-i18n-placeholder="placeholder_nick">
+
+    <div class="btn-row">
+      <button class="btn-secondary" id="testBtn" data-i18n="btn_test">TEST</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <button class="btn-custom" id="customBtn" data-i18n="btn_custom">CUSTOMIZATION</button>
+
+    <!-- OBS Link -->
+    <div class="obs-section" style="display:flex; align-items:center; justify-content:space-between;">
+      <h2 data-i18n="obs_title" style="margin:0;">URL FOR OBS</h2>
+      <button class="btn-copy" id="copyBtn" data-i18n="btn_copy" style="flex:none;">COPY</button>
+    </div>
+
+    <!-- Guide -->
+    <div class="guide">
+      <h3 data-i18n="guide_title">How to use</h3>
+      <div class="guide-step">
+        <span class="step-num">1.</span>
+        <span data-i18n="step_1">Enter your Minecraft nick and press <span class="highlight">SAVE</span></span>
+      </div>
+      <div class="guide-step">
+        <span class="step-num">2.</span>
+        <span data-i18n="step_2">Press <span class="highlight">COPY</span> to copy the overlay link</span>
+      </div>
+      <div class="guide-step">
+        <span class="step-num">3.</span>
+        <span data-i18n="step_3">In OBS: Sources → + → Browser → paste the link</span>
+      </div>
+      <div class="guide-step">
+        <span class="step-num">4.</span>
+        <span data-i18n="step_4">Play MCSR Ranked — opponent card appears automatically!</span>
+      </div>
+      <div class="guide-step">
+        <span class="step-num">5.</span>
+        <span data-i18n="step_5">Press <span class="highlight">TEST</span> to preview the card</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customization Overlay -->
+  <div class="custom-overlay" id="customOverlay">
+    <div class="custom-panel">
+      <div class="custom-header">
+        <h2 data-i18n="custom_title">CUSTOMIZATION</h2>
+        <div class="header-buttons">
+          <button class="btn-reset-custom" id="btnReset" title="Reset">±</button>
+          <button class="btn-close-custom" id="closeCustom">õ</button>
+        </div>
+      </div>
+
+      <div class="custom-body">
+        <!-- LEFT column: Font + Animation -->
+        <div class="custom-col">
+          <div class="custom-section">
+            <h3 data-i18n="custom_font">Font</h3>
+            <div class="font-picker" id="fontPicker">
+              <div class="font-picker-selected" id="fontPickerSelected">
+                <span id="fontPickerLabel" style="font-size:16px;">Inter</span>
+                <span class="font-picker-arrow">▼</span>
+              </div>
+              <div class="font-picker-list" id="fontPickerList"></div>
+            </div>
+          </div>
+
+          <div class="custom-section">
+            <h3 data-i18n="custom_animation">Animation</h3>
+            <div class="ctrl-row has-slider">
+              <span class="ctrl-label" data-i18n="anim_duration">Duration</span>
+              <span class="range-val" id="animDurationVal">727ms</span>
+              <input type="range" id="animDuration" min="0" max="5000" step="50" value="727">
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="anim_direction">Direction</span>
+              <select class="custom-select" id="animDirection">
+                <option value="top">Top</option>
+                <option value="bottom">Bottom</option>
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+            <div class="ctrl-row has-slider">
+              <span class="ctrl-label" data-i18n="head_speed">Head speed</span>
+              <span class="range-val" id="headSpeedVal">4500ms</span>
+              <input type="range" id="headSpeed" min="500" max="15000" step="100" value="4500">
+            </div>
+          </div>
+
+          <div class="custom-section">
+            <h3 data-i18n="custom_sizes">Sizes</h3>
+            <div class="ctrl-row has-slider">
+              <span class="ctrl-label" data-i18n="fs_nick">Nick</span>
+              <span class="range-val" id="fontSizeNickVal">36px</span>
+              <input type="range" id="fontSizeNick" min="0" max="200" step="2" value="36">
+            </div>
+            <div class="ctrl-row has-slider">
+              <span class="ctrl-label" data-i18n="fs_mmr">MMR</span>
+              <span class="range-val" id="fontSizeMMRVal">28px</span>
+              <input type="range" id="fontSizeMMR" min="0" max="200" step="2" value="28">
+            </div>
+            <div class="ctrl-row has-slider">
+              <span class="ctrl-label" data-i18n="fs_stats">Stats</span>
+              <span class="range-val" id="fontSizeStatsVal">28px</span>
+              <input type="range" id="fontSizeStats" min="0" max="200" step="2" value="28">
+            </div>
+            <div class="ctrl-row has-slider">
+              <span class="ctrl-label" data-i18n="fs_rank">Rank</span>
+              <span class="range-val" id="fontSizeRankVal">20px</span>
+              <input type="range" id="fontSizeRank" min="0" max="200" step="2" value="20">
+            </div>
+            <div class="ctrl-row has-slider">
+              <span class="ctrl-label" data-i18n="rank_icon_size">Icon</span>
+              <span class="range-val" id="rankIconSizeVal">48px</span>
+              <input type="range" id="rankIconSize" min="0" max="200" step="2" value="48">
+            </div>
+            <div class="ctrl-row has-slider">
+              <span class="ctrl-label" data-i18n="badge_size">Badge</span>
+              <span class="range-val" id="badgeSizeVal">88px</span>
+              <input type="range" id="badgeSize" min="0" max="200" step="2" value="88">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CENTER column: Preview -->
+        <div class="custom-col" style="align-items:center;">
+          <div class="custom-preview">
+            <iframe id="previewFrame" src="/?preview=true"></iframe>
+          </div>
+          <button class="btn-copy" id="copyBtnCustom" data-i18n="btn_copy" style="align-self:center; flex:none; margin-top:12px;">COPY</button>
+        </div>
+
+        <!-- RIGHT column: Elements + Rank Colors -->
+        <div class="custom-col">
+          <div class="custom-section">
+            <h3 data-i18n="custom_elements">Elements</h3>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="el_nickname">Nickname</span>
+              <label class="toggle"><input type="checkbox" id="togNickname" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="el_mmr">MMR</span>
+              <label class="toggle"><input type="checkbox" id="togMMR" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="el_badges">Badges</span>
+              <label class="toggle"><input type="checkbox" id="togBadges"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="el_chart">Chart</span>
+              <label class="toggle"><input type="checkbox" id="togChart" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="el_stats">Stats</span>
+              <label class="toggle"><input type="checkbox" id="togStats" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="el_winrate">— Winrate</span>
+              <label class="toggle"><input type="checkbox" id="togWinrate" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="el_average">Average</span>
+              <label class="toggle"><input type="checkbox" id="togAverage" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="el_pb">PB</span>
+              <label class="toggle"><input type="checkbox" id="togPB" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="el_forfeit">Forfeit</span>
+              <label class="toggle"><input type="checkbox" id="togForfeit" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="el_head">3D Head</span>
+              <label class="toggle"><input type="checkbox" id="togHead" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label" data-i18n="el_rank">World Rank</span>
+              <label class="toggle"><input type="checkbox" id="togRank" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+            </div>
+          </div>
+
+          <div class="custom-section">
+            <h3 data-i18n="custom_colors">Rank Colors</h3>
+            <div id="rankColorsContainer" style="max-height: 200px; overflow-y: auto;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <p id="confirmText">Are you sure?</p>
+      <div class="confirm-buttons">
+        <button class="btn-confirm-yes" id="confirmYes">YES</button>
+        <button class="btn-confirm-no" id="confirmNo">NO</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://api.mcsrranked.com';
+
+    // === i18n ===
+    const LANG = {
+      en: {
+        subtitle: 'Stream overlay for MCSR Ranked',
+        label_nick: 'MINECRAFT NICKNAME',
+        placeholder_nick: 'Enter your nick...',
+        btn_save: 'SAVE',
+        btn_test: 'TEST',
+        btn_copy: 'COPY',
+        obs_title: 'URL FOR OBS',
+        guide_title: 'How to use',
+        step_1: 'Enter your Minecraft nick and press <span class="highlight">SAVE</span>',
+        step_2: 'Press <span class="highlight">COPY</span> to copy the overlay link',
+        step_3: 'In OBS: Sources → + → Browser → paste the link',
+        step_4: 'Play MCSR Ranked — opponent card appears automatically!',
+        step_5: 'Press <span class="highlight">TEST</span> to preview the card',
+        copied: 'LINK COPIED!',
+        saving: 'SEARCHING...',
+        saved: 'SAVED! Player: ',
+        error_empty: 'Enter a nick!',
+        error_not_found: 'Player not found!',
+        error_conn: 'Connection error: ',
+        btn_custom: 'CUSTOMIZATION',
+        custom_title: 'CUSTOMIZATION',
+        custom_font: 'Font',
+        custom_font_select: 'Select font',
+        custom_elements: 'Elements',
+        el_nickname: 'Nickname',
+        el_mmr: 'MMR',
+        el_badges: 'Badges',
+        el_chart: 'Chart',
+        el_stats: 'Stats',
+        el_head: '3D Head',
+        custom_animation: 'Animation',
+        anim_duration: 'Duration',
+        anim_direction: 'Direction',
+        custom_colors: 'Rank Colors',
+        btn_sys_fonts: '+ SYSTEM FONTS',
+        fs_nick: 'Nick',
+        fs_mmr: 'MMR',
+        fs_stats: 'Stats',
+        fs_rank: 'Rank',
+        head_speed: 'Head speed',
+        el_winrate: 'Winrate',
+        el_average: 'Average',
+        el_pb: 'PB',
+        el_forfeit: 'Forfeit',
+        el_rank: 'World Rank',
+        badge_size: 'Badge',
+        rank_icon_size: 'Icon',
+        custom_sizes: 'Sizes',
+        btn_reset: 'RESET',
+      },
+      ru: {
+        subtitle: 'Стрим-оверлей для MCSR Ranked',
+        label_nick: 'MINECRAFT НИКНЕЙМ',
+        placeholder_nick: 'Введи свой ник...',
+        btn_save: 'СОХРАНИТЬ',
+        btn_test: 'ТЕСТ',
+        btn_copy: 'КОПИРОВАТЬ',
+        obs_title: 'ССЫЛКА ДЛЯ OBS',
+        guide_title: 'Как использовать',
+        step_1: 'Введи свой ник и нажми <span class="highlight">СОХРАНИТЬ</span>',
+        step_2: 'Нажми <span class="highlight">КОПИРОВАТЬ</span> чтобы скопировать ссылку',
+        step_3: 'В OBS: Источники → + → Браузер → вставь ссылку',
+        step_4: 'Играй в MCSR Ranked — карточка оппонента появится автоматически!',
+        step_5: 'Нажми <span class="highlight">ТЕСТ</span> для превью карточки',
+        copied: 'ССЫЛКА СКОПИРОВАНА!',
+        saving: 'ИЩУ...',
+        saved: 'СОХРАНЕНО! Игрок: ',
+        error_empty: 'Введи ник!',
+        error_not_found: 'Игрок не найден!',
+        error_conn: 'Ошибка соединения: ',
+        btn_custom: 'КАСТОМИЗАЦИЯ',
+        custom_title: 'КАСТОМИЗАЦИЯ',
+        custom_font: 'Шрифт',
+        custom_font_select: 'Выбрать шрифт',
+        custom_elements: 'Элементы',
+        el_nickname: 'Никнейм',
+        el_mmr: 'MMR',
+        el_badges: 'Бейджи',
+        el_chart: 'График',
+        el_stats: 'Статистика',
+        el_head: '3D Голова',
+        custom_animation: 'Анимация',
+        anim_duration: 'Длительность',
+        anim_direction: 'Направление',
+        custom_colors: 'Цвета рангов',
+        btn_sys_fonts: '+ СИСТЕМНЫЕ ШРИФТЫ',
+        fs_nick: 'Ник',
+        fs_mmr: 'MMR',
+        fs_stats: 'Статы',
+        fs_rank: 'Ранг',
+        head_speed: 'Скорость головы',
+        el_winrate: '— Винрейт',
+        el_average: '— Среднее',
+        el_pb: '— PB',
+        el_forfeit: '— Форфейт',
+        el_rank: 'Место в мире',
+        badge_size: 'Бейджи',
+        rank_icon_size: 'Иконка',
+        custom_sizes: 'Размеры',
+        btn_reset: 'СБРОСИТЬ',
+      }
+    };
+
+    let currentLang = localStorage.getItem('mcsr_lang') || 'en';
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('mcsr_lang', lang);
+      document.querySelectorAll('.lang-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.lang === lang);
+      });
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (LANG[lang][key]) el.innerHTML = LANG[lang][key];
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        if (LANG[lang][key]) el.placeholder = LANG[lang][key];
+      });
+    }
+
+    function t(key) { return LANG[currentLang][key] || key; }
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => setLang(btn.dataset.lang));
+    });
+
+    setLang(currentLang);
+
+    // === Main Logic ===
+    const usernameInput = document.getElementById('username');
+    const testBtn = document.getElementById('testBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const statusEl = document.getElementById('status');
+    const copyToast = document.getElementById('copyToast');
+
+    let savedPlayer = localStorage.getItem('mcsr_player') || '';
+    if (savedPlayer) usernameInput.value = savedPlayer;
+
+    function showStatus(msg, type) {
+      statusEl.textContent = msg;
+      statusEl.className = 'status ' + type;
+    }
+
+    // === Default rank colors ===
+    const DEFAULT_RANK_COLORS = {
+      coal:      { color: '#333333', glow: '#666666' },
+      iron:      { color: '#aaaaaa', glow: '#dddddd' },
+      gold:      { color: '#ffaa00', glow: '#ffcc44' },
+      emerald:   { color: '#00aa00', glow: '#44dd44' },
+      diamond:   { color: '#55ffff', glow: '#99ffff' },
+      netherite: { color: '#ff2222', glow: '#ff6644' },
+    };
+
+    // === Build overlay URL from current settings ===
+    function buildOverlayUrl(opts) {
+      const base = location.origin;
+      const p = new URLSearchParams();
+
+      const player = opts?.player || usernameInput.value.trim();
+      if (player) p.set('player', player);
+
+      const cfg = gatherConfig();
+      if (cfg.font && cfg.font !== 'Inter') p.set('font', cfg.font);
+      if (cfg.fontSizeNick !== 36) p.set('fontSizeNick', cfg.fontSizeNick);
+      if (cfg.fontSizeMMR !== 28) p.set('fontSizeMMR', cfg.fontSizeMMR);
+      if (cfg.fontSizeStats !== 28) p.set('fontSizeStats', cfg.fontSizeStats);
+      if (!cfg.showNickname) p.set('showNickname', 'false');
+      if (!cfg.showMMR) p.set('showMMR', 'false');
+      if (cfg.showBadges) p.set('showBadges', 'true');
+      if (!cfg.showChart) p.set('showChart', 'false');
+      if (!cfg.showStats) p.set('showStats', 'false');
+      if (!cfg.showWinrate) p.set('showWinrate', 'false');
+      if (!cfg.showAverage) p.set('showAverage', 'false');
+      if (!cfg.showPB) p.set('showPB', 'false');
+      if (!cfg.showForfeit) p.set('showForfeit', 'false');
+      if (!cfg.showHead) p.set('showHead', 'false');
+      if (!cfg.showRank) p.set('showRank', 'false');
+      if (cfg.fontSizeRank !== 20) p.set('fontSizeRank', cfg.fontSizeRank);
+      if (cfg.badgeSize !== 88) p.set('badgeSize', cfg.badgeSize);
+      if (cfg.rankIconSize !== 48) p.set('rankIconSize', cfg.rankIconSize);
+      if (cfg.animationDuration !== 727) p.set('animationDuration', cfg.animationDuration);
+      if (cfg.animationDirection !== 'top') p.set('animation', cfg.animationDirection);
+      if (cfg.headSpeed !== 4500) p.set('headSpeed', cfg.headSpeed);
+
+      // Rank colors — only include if changed from defaults
+      const colorParts = [];
+      for (const rank of RANK_NAMES) {
+        const c = cfg.rankColors[rank];
+        const def = DEFAULT_RANK_COLORS[rank];
+        if (c && (c.color.toLowerCase() !== def.color || c.glow.toLowerCase() !== def.glow)) {
+          colorParts.push(`${rank}:${c.color.replace('#', '')}:${c.glow.replace('#', '')}`);
+        }
+      }
+      if (colorParts.length > 0) p.set('colors', colorParts.join(','));
+
+      if (opts?.preview) {
+        p.set('preview', '');
+        if (activeRank) p.set('previewRank', activeRank);
+      }
+
+      const qs = p.toString();
+      return `${base}/${qs ? '?' + qs : ''}`;
+    }
+
+    function updateObsUrl() {
+      // URL updated internally, no visible preview needed
+    }
+
+    // Auto-save player on input (debounced)
+    let saveNickTimer = null;
+    usernameInput.addEventListener('input', () => {
+      if (saveNickTimer) clearTimeout(saveNickTimer);
+      saveNickTimer = setTimeout(async () => {
+        const username = usernameInput.value.trim();
+        if (!username) { savedPlayer = ''; localStorage.removeItem('mcsr_player'); return; }
+        try {
+          const resp = await fetch(`${API_BASE}/users/${encodeURIComponent(username)}`);
+          const data = await resp.json();
+          if (data.status === 'success') {
+            savedPlayer = data.data.nickname;
+            localStorage.setItem('mcsr_player', savedPlayer);
+            showStatus(t('saved') + savedPlayer, 'success');
+          } else {
+            showStatus(t('error_not_found'), 'error');
+          }
+        } catch (err) {
+          showStatus(t('error_conn') + err.message, 'error');
+        }
+      }, 600);
+    });
+
+    // Test — send test command via WebSocket to all overlay clients (including OBS)
+    let ws = null;
+    function connectWs() {
+      ws = new WebSocket(`ws://${location.host}`);
+      ws.onclose = () => setTimeout(connectWs, 3000);
+      ws.onerror = () => ws.close();
+    }
+    connectWs();
+
+    testBtn.addEventListener('click', () => {
+      const username = usernameInput.value.trim();
+      if (!username) return showStatus(t('error_empty'), 'error');
+      if (ws && ws.readyState === 1) {
+        ws.send(JSON.stringify({ type: 'test' }));
+        copyToast.textContent = currentLang === 'ru' ? 'ОТПРАВЛЕНО!' : 'SENT!';
+        copyToast.classList.add('show');
+        setTimeout(() => copyToast.classList.remove('show'), 1500);
+      }
+    });
+
+    // Copy OBS link
+    copyBtn.addEventListener('click', () => {
+      const url = buildOverlayUrl();
+      navigator.clipboard.writeText(url).then(() => {
+        copyToast.textContent = t('copied');
+        copyToast.classList.add('show');
+        setTimeout(() => copyToast.classList.remove('show'), 1500);
+      });
+    });
+
+    // Copy button inside customization
+    document.getElementById('copyBtnCustom').addEventListener('click', () => {
+      const url = buildOverlayUrl();
+      navigator.clipboard.writeText(url).then(() => {
+        copyToast.textContent = t('copied');
+        copyToast.classList.add('show');
+        setTimeout(() => copyToast.classList.remove('show'), 1500);
+      });
+    });
+
+    // === Customization ===
+    const customBtn = document.getElementById('customBtn');
+    const customOverlay = document.getElementById('customOverlay');
+    const closeCustom = document.getElementById('closeCustom');
+    const previewFrame = document.getElementById('previewFrame');
+    const previewContainer = document.querySelector('.custom-preview');
+
+    function scalePreview() {
+      const cw = previewContainer.clientWidth;
+      if (!cw) return;
+      const scale = Math.min(cw / 520, 1);
+      previewContainer.style.setProperty('--preview-scale', scale);
+      previewContainer.style.height = Math.round(500 * scale) + 'px';
+    }
+    window.addEventListener('resize', scalePreview);
+
+    const RANK_NAMES = ['coal', 'iron', 'gold', 'emerald', 'diamond', 'netherite'];
+    const RANK_LABELS = {
+      coal: 'Coal', iron: 'Iron', gold: 'Gold',
+      emerald: 'Emerald', diamond: 'Diamond', netherite: 'Netherite'
+    };
+
+    let loadedFonts = []; // filled from /api/fonts
+    let saveTimer = null;
+
+    // Open/close
+    customBtn.addEventListener('click', () => {
+      customOverlay.classList.add('open');
+      loadCustomization();
+      setTimeout(scalePreview, 50);
+    });
+    closeCustom.addEventListener('click', () => customOverlay.classList.remove('open'));
+    customOverlay.addEventListener('click', (e) => {
+      if (e.target === customOverlay) customOverlay.classList.remove('open');
+    });
+
+    // Font picker
+    let selectedFont = 'Inter';
+    const fontPicker = document.getElementById('fontPicker');
+    const fontPickerSelected = document.getElementById('fontPickerSelected');
+    const fontPickerLabel = document.getElementById('fontPickerLabel');
+    const fontPickerList = document.getElementById('fontPickerList');
+
+    // Fetch fonts from server, register @font-face dynamically
+    async function fetchFonts() {
+      try {
+        const resp = await fetch('/api/fonts');
+        loadedFonts = await resp.json();
+        for (const f of loadedFonts) {
+          const face = new FontFace(f.name, `url('/fonts/${f.file}')`);
+          document.fonts.add(face);
+          face.load().catch(() => {});
+        }
+      } catch {
+        loadedFonts = [];
+      }
+    }
+
+    function buildFontPicker(activeFont) {
+      selectedFont = activeFont || 'Inter';
+      fontPickerLabel.textContent = selectedFont;
+      fontPickerLabel.style.fontFamily = `'${selectedFont}', monospace`;
+      fontPickerList.innerHTML = '';
+      for (const f of loadedFonts) {
+        const item = document.createElement('div');
+        item.className = 'font-picker-item' + (f.name === selectedFont ? ' active' : '');
+        item.textContent = f.name;
+        item.style.fontFamily = `'${f.name}', monospace`;
+        item.dataset.font = f.name;
+        item.addEventListener('click', () => {
+          selectedFont = f.name;
+          fontPickerLabel.textContent = f.name;
+          fontPickerLabel.style.fontFamily = `'${f.name}', monospace`;
+          fontPickerList.querySelectorAll('.font-picker-item').forEach(el => el.classList.remove('active'));
+          item.classList.add('active');
+          fontPicker.classList.remove('open');
+          onCustomChange();
+        });
+        fontPickerList.appendChild(item);
+      }
+    }
+
+    fontPickerSelected.addEventListener('click', () => fontPicker.classList.toggle('open'));
+    document.addEventListener('click', (e) => {
+      if (!fontPicker.contains(e.target)) fontPicker.classList.remove('open');
+    });
+
+    // Build rank color inputs
+    let activeRank = 'gold'; // default selected rank
+
+    function buildRankColors(rankColors) {
+      const container = document.getElementById('rankColorsContainer');
+      container.innerHTML = '';
+      for (const rank of RANK_NAMES) {
+        const colors = rankColors[rank] || DEFAULT_RANK_COLORS[rank];
+        const row = document.createElement('div');
+        row.className = 'color-row' + (rank === activeRank ? ' active' : '');
+        row.dataset.rank = rank;
+        row.style.setProperty('--row-color', colors.color);
+        row.innerHTML = `
+          <span class="rank-arrow">m</span>
+          <span class="rank-name">${RANK_LABELS[rank]}</span>
+          <span class="color-inputs">
+            <div class="color-swatch" data-rank="${rank}" data-prop="color" style="background:${colors.color}"></div>
+            <input type="color" data-rank="${rank}" data-prop="color" value="${colors.color}">
+            <div class="color-swatch" data-rank="${rank}" data-prop="glow" style="background:${colors.glow}"></div>
+            <input type="color" data-rank="${rank}" data-prop="glow" value="${colors.glow}">
+          </span>
+        `;
+        // Click row to select
+        row.addEventListener('click', (e) => {
+          if (e.target.classList.contains('color-swatch')) return;
+          container.querySelectorAll('.color-row').forEach(r => r.classList.remove('active'));
+          row.classList.add('active');
+          activeRank = rank;
+          onCustomChange();
+        });
+        container.appendChild(row);
+      }
+      // Swatch click opens hidden color input
+      container.querySelectorAll('.color-swatch').forEach(swatch => {
+        const input = swatch.nextElementSibling;
+        swatch.addEventListener('click', (e) => {
+          e.stopPropagation();
+          input.click();
+        });
+        input.addEventListener('input', () => {
+          swatch.style.background = input.value;
+          // Update row --row-color if it's the main color
+          if (input.dataset.prop === 'color') {
+            input.closest('.color-row').style.setProperty('--row-color', input.value);
+          }
+          onCustomChange();
+        });
+      });
+    }
+
+    // Load customization from localStorage
+    async function loadCustomization() {
+      await fetchFonts();
+
+      const saved = localStorage.getItem('mcsr_custom');
+      const cfg = saved ? JSON.parse(saved) : {};
+
+      buildFontPicker(cfg.font || 'Inter');
+      document.getElementById('fontSizeNick').value = cfg.fontSizeNick || 36;
+      document.getElementById('fontSizeNickVal').textContent = (cfg.fontSizeNick || 36) + 'px';
+      document.getElementById('fontSizeMMR').value = cfg.fontSizeMMR || 28;
+      document.getElementById('fontSizeMMRVal').textContent = (cfg.fontSizeMMR || 28) + 'px';
+      document.getElementById('fontSizeStats').value = cfg.fontSizeStats || 28;
+      document.getElementById('fontSizeStatsVal').textContent = (cfg.fontSizeStats || 28) + 'px';
+      document.getElementById('togNickname').checked = cfg.showNickname !== false;
+      document.getElementById('togMMR').checked = cfg.showMMR !== false;
+      document.getElementById('rankIconSize').value = cfg.rankIconSize || 48;
+      document.getElementById('rankIconSizeVal').textContent = (cfg.rankIconSize || 48) + 'px';
+      document.getElementById('togBadges').checked = cfg.showBadges === true;
+      document.getElementById('badgeSize').value = cfg.badgeSize || 88;
+      document.getElementById('badgeSizeVal').textContent = (cfg.badgeSize || 88) + 'px';
+      document.getElementById('togChart').checked = cfg.showChart !== false;
+      document.getElementById('togStats').checked = cfg.showStats !== false;
+      document.getElementById('togWinrate').checked = cfg.showWinrate !== false;
+      document.getElementById('togAverage').checked = cfg.showAverage !== false;
+      document.getElementById('togPB').checked = cfg.showPB !== false;
+      document.getElementById('togForfeit').checked = cfg.showForfeit !== false;
+      document.getElementById('togHead').checked = cfg.showHead !== false;
+      document.getElementById('togRank').checked = cfg.showRank !== false;
+      document.getElementById('fontSizeRank').value = cfg.fontSizeRank || 20;
+      document.getElementById('fontSizeRankVal').textContent = (cfg.fontSizeRank || 20) + 'px';
+      document.getElementById('animDuration').value = cfg.animationDuration || 727;
+      document.getElementById('animDurationVal').textContent = (cfg.animationDuration || 727) + 'ms';
+      document.getElementById('animDirection').value = cfg.animationDirection || 'top';
+      document.getElementById('headSpeed').value = cfg.headSpeed || 4500;
+      document.getElementById('headSpeedVal').textContent = (cfg.headSpeed || 4500) + 'ms';
+      buildRankColors(cfg.rankColors || DEFAULT_RANK_COLORS);
+
+      updatePreview();
+    }
+
+    // Gather current config from UI
+    function gatherConfig() {
+      const rankColors = {};
+      document.querySelectorAll('#rankColorsContainer input[type="color"]').forEach(input => {
+        const rank = input.dataset.rank;
+        const prop = input.dataset.prop;
+        if (!rankColors[rank]) rankColors[rank] = {};
+        rankColors[rank][prop] = input.value;
+      });
+      return {
+        font: selectedFont || 'Inter',
+        fontSizeNick: parseInt(document.getElementById('fontSizeNick').value) || 36,
+        fontSizeMMR: parseInt(document.getElementById('fontSizeMMR').value) || 28,
+        fontSizeStats: parseInt(document.getElementById('fontSizeStats').value) || 24,
+        showNickname: document.getElementById('togNickname').checked,
+        showMMR: document.getElementById('togMMR').checked,
+        showBadges: document.getElementById('togBadges').checked,
+        showChart: document.getElementById('togChart').checked,
+        showStats: document.getElementById('togStats').checked,
+        showWinrate: document.getElementById('togWinrate').checked,
+        showAverage: document.getElementById('togAverage').checked,
+        showPB: document.getElementById('togPB').checked,
+        showForfeit: document.getElementById('togForfeit').checked,
+        showHead: document.getElementById('togHead').checked,
+        showRank: document.getElementById('togRank').checked,
+        fontSizeRank: parseInt(document.getElementById('fontSizeRank').value) || 28,
+        badgeSize: parseInt(document.getElementById('badgeSize').value) || 80,
+        rankIconSize: parseInt(document.getElementById('rankIconSize').value) || 40,
+        animationDuration: parseInt(document.getElementById('animDuration').value) || 500,
+        animationDirection: document.getElementById('animDirection').value || 'top',
+        headSpeed: parseInt(document.getElementById('headSpeed').value) || 3000,
+        rankColors,
+      };
+    }
+
+    // Update preview iframe with current settings
+    function updatePreview() {
+      const url = buildOverlayUrl({ preview: true });
+      previewFrame.src = url;
+    }
+
+    // Auto-save & update on any change (debounced 300ms)
+    function onCustomChange() {
+      if (saveTimer) clearTimeout(saveTimer);
+      document.getElementById('animDurationVal').textContent = document.getElementById('animDuration').value + 'ms';
+      document.getElementById('fontSizeNickVal').textContent = document.getElementById('fontSizeNick').value + 'px';
+      document.getElementById('fontSizeMMRVal').textContent = document.getElementById('fontSizeMMR').value + 'px';
+      document.getElementById('fontSizeStatsVal').textContent = document.getElementById('fontSizeStats').value + 'px';
+      document.getElementById('headSpeedVal').textContent = document.getElementById('headSpeed').value + 'ms';
+      document.getElementById('fontSizeRankVal').textContent = document.getElementById('fontSizeRank').value + 'px';
+      document.getElementById('badgeSizeVal').textContent = document.getElementById('badgeSize').value + 'px';
+      document.getElementById('rankIconSizeVal').textContent = document.getElementById('rankIconSize').value + 'px';
+
+      saveTimer = setTimeout(() => {
+        const cfg = gatherConfig();
+        localStorage.setItem('mcsr_custom', JSON.stringify(cfg));
+        updateObsUrl();
+        updatePreview();
+      }, 300);
+    }
+
+    // Bind all controls
+    document.getElementById('fontSizeNick').addEventListener('input', onCustomChange);
+    document.getElementById('fontSizeMMR').addEventListener('input', onCustomChange);
+    document.getElementById('fontSizeStats').addEventListener('input', onCustomChange);
+    document.getElementById('animDuration').addEventListener('input', onCustomChange);
+    document.getElementById('animDirection').addEventListener('change', onCustomChange);
+    document.getElementById('headSpeed').addEventListener('input', onCustomChange);
+    document.getElementById('fontSizeRank').addEventListener('input', onCustomChange);
+    document.getElementById('badgeSize').addEventListener('input', onCustomChange);
+    document.getElementById('rankIconSize').addEventListener('input', onCustomChange);
+    ['togNickname','togMMR','togBadges','togChart','togStats','togWinrate','togAverage','togPB','togForfeit','togHead','togRank'].forEach(id => {
+      document.getElementById(id).addEventListener('change', onCustomChange);
+    });
+
+    // Reset button with confirmation
+    const confirmOverlay = document.getElementById('confirmOverlay');
+    const confirmText = document.getElementById('confirmText');
+    document.getElementById('btnReset').addEventListener('click', (e) => {
+      e.stopPropagation();
+      confirmText.textContent = currentLang === 'ru' ? 'Сбросить все настройки?' : 'Reset all settings?';
+      confirmOverlay.classList.add('open');
+    });
+    document.getElementById('confirmYes').addEventListener('click', () => {
+      localStorage.removeItem('mcsr_custom');
+      confirmOverlay.classList.remove('open');
+      loadCustomization();
+    });
+    document.getElementById('confirmNo').addEventListener('click', () => {
+      confirmOverlay.classList.remove('open');
+    });
+
+    // Also update URL when username changes
+    usernameInput.addEventListener('input', () => {
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(updateObsUrl, 300);
+    });
+
+    // Range slider — add .dragging class on hold for enchant effect
+    document.querySelectorAll('input[type="range"]').forEach(el => {
+      el.addEventListener('mousedown', () => el.classList.add('dragging'));
+      el.addEventListener('touchstart', () => el.classList.add('dragging'));
+    });
+    document.addEventListener('mouseup', () => {
+      document.querySelectorAll('input[type="range"].dragging').forEach(el => el.classList.remove('dragging'));
+    });
+    document.addEventListener('touchend', () => {
+      document.querySelectorAll('input[type="range"].dragging').forEach(el => el.classList.remove('dragging'));
+    });
+
+    // Init URL display
+    updateObsUrl();
+
+  </script>
+</body>
+</html>
