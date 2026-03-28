@@ -700,7 +700,7 @@ async function init() {
 
 // --- WebSocket: listen for test command from setup page ---
 function connectWs() {
-  const ws = new WebSocket(`ws://${location.host}`);
+  const ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`);
   ws.onmessage = (e) => {
     try {
       const data = JSON.parse(e.data);

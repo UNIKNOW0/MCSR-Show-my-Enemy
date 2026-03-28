@@ -10,7 +10,18 @@ const wss = new WebSocketServer({ server });
 
 const PORT = process.env.PORT || 3001;
 
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static assets (but not index.html at root)
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+
+// Root -> setup
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'setup.html'));
+});
+
+// /overlay -> OBS overlay
+app.get('/overlay', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // --- Font list from /public/fonts/ ---
 const FONT_NAME_OVERRIDES = {
@@ -76,6 +87,12 @@ wss.on('connection', (ws) => {
     } catch {}
   });
   ws.on('close', () => console.log('Client disconnected'));
+});
+
+
+// Clean URL: /setup -> setup.html
+app.get('/setup', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'setup.html'));
 });
 
 // --- Start ---
